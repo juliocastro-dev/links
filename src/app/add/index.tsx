@@ -8,25 +8,44 @@ import { colors } from "@/styles/colors";
 import { Categories } from "@/components/categories";
 import { Input } from "@/components/input";
 import { Button } from "@/components/button";
+import { linkStorage } from "@/storage/link-storage";
 
 export default function Add(){
     const [category, setCategory] = useState("");
     const [name, setName] = useState("");
     const [url, setUrl] = useState("");
 
-    const handleAdd = () => {
+    const handleAdd = async () => {
 
-        if (!category){
-            return Alert.alert("Categoria", "Selecione a categoria")
-        }
-        if (!name.trim()){
-            return Alert.alert("Nome", "Informe o Nome")
-        }
-        if (!url.trim()){
-            return Alert.alert("URL", "Informe a URL")
-        }
+        try {
+            if (!category){
+                return Alert.alert("Categoria", "Selecione a categoria")
+            }
+            if (!name.trim()){
+                return Alert.alert("Nome", "Informe o Nome")
+            }
+            if (!url.trim()){
+                return Alert.alert("URL", "Informe a URL")
+            }
 
-        console.log({category, name, url})
+            await linkStorage.save({
+                id: new Date().getTime().toString(),
+                name, 
+                url, 
+                category
+            })
+
+            Alert.alert("Sucesso!", "Novo link adicionado", [
+                {
+                    text: "Ok", 
+                    onPress: () => router.back(),
+                }
+            ])
+
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível salvar o link")
+            console.log(error)
+        }
     }
 
     return (
@@ -45,8 +64,8 @@ export default function Add(){
                 selected={category}
             />
             <View style={styles.form}>
-                <Input placeholder="Nome" onChangeText={setName}/>
-                <Input placeholder="URL" onChangeText={setUrl} />
+                <Input placeholder="Nome" onChangeText={setName} autoCorrect={false} autoCapitalize="none" />
+                <Input placeholder="URL" onChangeText={setUrl} autoCorrect={false} autoCapitalize="none" />
                 <Button title="Adicionar" onPress={handleAdd} />
             </View>
         </View>
